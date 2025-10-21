@@ -35,15 +35,13 @@ export default function App() {
   const [selectedFriend, setSelectedFriend] = useState(null);
 
   function handleShowAddFriend() {
-    setShowAddFriend((show) => {
-      if (!show) setSelectedFriend(null);
-      return !show;
-    });
+    setShowAddFriend((show) => !show);
   }
 
   function handleAddFriend(friend) {
     setFriends((friends) => [...friends, friend]);
     setShowAddFriend(false);
+    setSelectedFriend(null);
   }
 
   function handleSelection(friend) {
@@ -57,6 +55,7 @@ export default function App() {
         friend.id === friendId ? { ...friend, balance: newBalance } : friend
       )
     );
+    setSelectedFriend(null);
   }
 
   return (
@@ -175,12 +174,11 @@ function FormUpdateBalance({ selectedFriend, onUpdateBalance }) {
   function handleSubmit(e) {
     e.preventDefault();
 
-    const newBalance =
-      selectedFriend.balance +
-      parseFloat(youGave || 0) -
-      parseFloat(friendGave || 0);
+    const updatedBalance =
+      selectedFriend.balance + Number(youGave || 0) - Number(friendGave || 0);
 
-    onUpdateBalance(selectedFriend.id, newBalance);
+    onUpdateBalance(selectedFriend.id, updatedBalance);
+
     setYouGave(0);
     setFriendGave(0);
   }
