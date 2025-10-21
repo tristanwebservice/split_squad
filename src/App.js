@@ -3,21 +3,21 @@ import { useState } from "react";
 const initialFriends = [
   {
     id: 118836,
-    name: "Clark",
+    name: "Tarik",
     image: "https://i.pravatar.cc/48?u=118836",
-    balance: -7,
+    balance: 250,
   },
   {
     id: 933372,
-    name: "Sarah",
+    name: "Mika",
     image: "https://i.pravatar.cc/48?u=933372",
-    balance: 20,
+    balance: -120,
   },
   {
     id: 499476,
-    name: "Anthony",
+    name: "Tony",
     image: "https://i.pravatar.cc/48?u=499476",
-    balance: 0,
+    balance: 40,
   },
 ];
 
@@ -36,6 +36,7 @@ export default function App() {
 
   function handleShowAddFriend() {
     setShowAddFriend((show) => !show);
+    setSelectedFriend(null);
   }
 
   function handleAddFriend(friend) {
@@ -78,6 +79,7 @@ export default function App() {
         <FormUpdateBalance
           selectedFriend={selectedFriend}
           onUpdateBalance={handleUpdateBalance}
+          key={selectedFriend.key}
         />
       )}
     </div>
@@ -138,7 +140,7 @@ function FormAddFriend({ onAddFriend }) {
     if (!name || !image) return;
 
     const id = crypto.randomUUID();
-    const newFriend = { name, image: `${image}?=${id}`, balance: 0 };
+    const newFriend = { id, name, image: `${image}?u=${id}`, balance: 0 };
 
     onAddFriend(newFriend);
 
