@@ -51,6 +51,14 @@ export default function App() {
     setShowAddFriend(false);
   }
 
+  function handleUpdateBalance(friendId, newBalance) {
+    setFriends((friends) =>
+      friends.map((friend) =>
+        friend.id === friendId ? { ...friend, balance: newBalance } : friend
+      )
+    );
+  }
+
   return (
     <div className="app">
       <div className="sidebar">
@@ -67,7 +75,12 @@ export default function App() {
         </Button>
       </div>
 
-      {selectedFriend && <FormUpdateBalance selectedFriend={selectedFriend} />}
+      {selectedFriend && (
+        <FormUpdateBalance
+          selectedFriend={selectedFriend}
+          onUpdateBalance={handleUpdateBalance}
+        />
+      )}
     </div>
   );
 }
@@ -155,17 +168,42 @@ function FormAddFriend({ onAddFriend }) {
   );
 }
 
-function FormUpdateBalance({ selectedFriend }) {
+function FormUpdateBalance({ selectedFriend, onUpdateBalance }) {
+  const [youGave, setYouGave] = useState(0);
+  const [friendGave, setFriendGave] = useState(0);
+
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    const newBalance =
+      selectedFriend.balance +
+      parseFloat(youGave || 0) -
+      parseFloat(friendGave || 0);
+
+    onUpdateBalance(selectedFriend.id, newBalance);
+    setYouGave(0);
+    setFriendGave(0);
+  }
+
   return (
-    <form className="form-update-balance">
+    <form className="form-update-balance" onSubmit={handleSubmit}>
       <h2>Update balance with {selectedFriend.name}</h2>
 
-      <label for="">You gave to {selectedFriend.name}</label>
-      <input type="text"></input>
-      <label for="">{selectedFriend.name} gave to you</label>
-      <input type="text"></input>
+      <label>You gave to {selectedFriend.name}</label>
+      <input
+        type="number"
+        value={youGave}
+        onChange={(e) => setYouGave(e.target.value)}
+      />
 
-      <Button>Update</Button>
+      <label>{selectedFriend.name} gave to you</label>
+      <input
+        type="number"
+        value={friendGave}
+        onChange={(e) => setFriendGave(e.target.value)}
+      />
+
+      <Button type="submit">Update</Button>
     </form>
   );
 }
