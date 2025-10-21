@@ -32,9 +32,13 @@ function Button({ children, onClick }) {
 export default function App() {
   const [friends, setFriends] = useState(initialFriends);
   const [showAddFriend, setShowAddFriend] = useState(false);
+  const [selectedFriend, setSelectedFriend] = useState(null);
 
-  function handleShowAddFriend(params) {
-    setShowAddFriend((show) => !show);
+  function handleShowAddFriend() {
+    setShowAddFriend((show) => {
+      if (!show) setSelectedFriend(null);
+      return !show;
+    });
   }
 
   function handleAddFriend(friend) {
@@ -42,33 +46,52 @@ export default function App() {
     setShowAddFriend(false);
   }
 
+  function handleSelection(friend) {
+    setSelectedFriend((cur) => (cur?.id === friend.id ? null : friend));
+    setShowAddFriend(false);
+  }
+
   return (
     <div className="app">
       <div className="sidebar">
-        <FriendsList friends={friends} />
+        <FriendsList
+          friends={friends}
+          onSelection={handleSelection}
+          selectedFriend={selectedFriend}
+        />
+
         {showAddFriend && <FormAddFriend onAddFriend={handleAddFriend} />}
+
         <Button onClick={handleShowAddFriend}>
           {showAddFriend ? `Close` : `Add friend`}
         </Button>
       </div>
-      <FormUpdateBalance />
+
+      {selectedFriend && <FormUpdateBalance selectedFriend={selectedFriend} />}
     </div>
   );
 }
 
-function FriendsList({ friends }) {
+function FriendsList({ friends, onSelection, selectedFriend }) {
   return (
     <ul>
       {friends.map((friend) => (
-        <Friend friend={friend} key={friend.id} />
+        <Friend
+          friend={friend}
+          key={friend.id}
+          onSelection={onSelection}
+          selectedFriend={selectedFriend}
+        />
       ))}
     </ul>
   );
 }
 
-function Friend({ friend }) {
+function Friend({ friend, onSelection, selectedFriend }) {
+  const isSelected = selectedFriend?.id === friend.id;
+
   return (
-    <li>
+    <li className={isSelected ? `Selected` : ``}>
       <img src={friend.image} alt={friend.name} />
       <h3>{friend.name}</h3>
 
@@ -86,7 +109,9 @@ function Friend({ friend }) {
 
       {friend.balance === 0 && <p>You and {friend.name} are even!</p>}
 
-      <Button>Select</Button>
+      <Button onClick={() => onSelection(friend)}>
+        {isSelected ? `Close` : `Select`}
+      </Button>
     </li>
   );
 }
@@ -105,7 +130,7 @@ function FormAddFriend({ onAddFriend }) {
 
     onAddFriend(newFriend);
 
-    setName();
+    setName(``);
     setImage(`https://i.pravatar.cc/48`);
   }
 
@@ -130,14 +155,14 @@ function FormAddFriend({ onAddFriend }) {
   );
 }
 
-function FormUpdateBalance() {
+function FormUpdateBalance({ selectedFriend }) {
   return (
     <form className="form-update-balance">
-      <h2>Update balance with </h2>
+      <h2>Update balance with {selectedFriend.name}</h2>
 
-      <label for="">You gave to friend</label>
+      <label for="">You gave to {selectedFriend.name}</label>
       <input type="text"></input>
-      <label for="">Friend gave to you</label>
+      <label for="">{selectedFriend.name} gave to you</label>
       <input type="text"></input>
 
       <Button>Update</Button>
